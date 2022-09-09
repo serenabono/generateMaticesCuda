@@ -78,19 +78,17 @@ int main()
     curandGenerator_t rng;
     cublasCreate(&hd);
     curandCreateGenerator(&rng, CURAND_RNG_PSEUDO_DEFAULT);
-    const size_t m =5764800, n = 75;
+    const size_t m =19600, n = 19600;
 
-    int times = 5764800 / 75;
+    int times = 214200 / 80;
 
-    float size = m*n * sizeof( float );
+    float size = m*n*5 * sizeof( float );
     std::cout << "size: " << size << ", times: " << times <<std::endl;
+    std::cout << time(NULL) << std::endl;
     for(int i = 0; i < times; ++i){
-        if(i%10 == 0){
-            std::cout << "times: " <<i<<std::endl;
-        }
         matTofile(m,n,rng);
     }
-    
+    std::cout << time(NULL) << std::endl;
     curandDestroyGenerator(rng);
     cublasDestroy(hd);
 
@@ -131,6 +129,6 @@ void matTofile(int m, int n, curandGenerator_t rng){
                 thrust::divides<double>());
     }
 
-    thrust::copy(C.begin(), C.end(), std::ostream_iterator<double>(ofile, ","));
+    // thrust::copy(C.begin(), C.end(), std::ostream_iterator<double>(ofile, ","));
 
 }
