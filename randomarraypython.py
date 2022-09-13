@@ -2,6 +2,8 @@ import numpy as np
 import pycuda.autoinit
 from pycuda.compiler import SourceModule
 from pycuda import gpuarray
+import pycuda.curandom
+
 code = """
     #include <curand_kernel.h>
     const int nstates = %(NGENERATORS)s;
@@ -52,19 +54,27 @@ lin_comb = ElementwiseKernel(
         "linear_combination")
 lin_comb(1/gdata_sumrows.get(), gdata, c_gpu)
 end_cuda = time.time()
+print(end_cuda-start_cuda)
 
-
-start_cuda = time.time()
-seed = np.int32(123456789)
-nvalues = 3111696
-init_func(seed, block=(N,1,1), grid=(1,1,1))
-gdata = gpuarray.zeros(nvalues, dtype=np.float32)
-fill_func(gdata, np.int32(nvalues), block=(N,1,1), grid=(1,1,1))
-gdata_sumrows = pycuda.gpuarray.sum(gdata)
-c_gpu = gpuarray.empty_like(gdata)
+start_cuda_func = time.time()
+gen = pycuda.curandom.XORWOWRandomNumberGenerator()
+array = pycuda.gpuarray.GPUArray((3111696,), dtype=np.float32)
+gen.fill_normal(array)
+gdata_sumrows = pycuda.gpuarray.sum(array)
+c_gpu = gpuarray.empty_like(array)
 lin_comb = ElementwiseKernel(
         "float a, float *x, float *z",
         "z[i] = a*x[i]",
         "linear_combination")
-lin_comb(1/gdata_sumrows.get(), gdata, c_gpu)
-end_cuda = time.time()
+lin_comb(1/gdata_sumrows.get(), array, c_gpu)
+end_cuda_func = time.time()
+print(end_cuda_func-start_cuda_func)
+
+#generate random seeds
+start_cuda_uniform = time.time()
+gen = pycuda.curandom.XORWOWRandomNumberGenerator()
+array = pycuda.gpuarray.GPUArray((3111696,), dtype=np.float32)
+gen.fill_uniform(array)
+gdata_sumrows = pycuda.gpuarray.sum(array)
+end_cuda_uniform = time.time()
+print(end_cuda_uniform-start_cuda_uniform)
