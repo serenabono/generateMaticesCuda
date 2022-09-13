@@ -13,16 +13,6 @@
 #include <math.h>
 #include <fstream>
 
-#define CUDA_CALL(x) do { if((x)!=cudaSuccess) { \
-    printf("Error at %s:%d\n",__FILE__,__LINE__);\
-    return EXIT_FAILURE;}} while(0)
-#define CURAND_CALL(x) do { if((x)!=CURAND_STATUS_SUCCESS) { \
-    printf("Error at %s:%d\n",__FILE__,__LINE__);\
-    return EXIT_FAILURE;}} while(0)
-#define CUBLA_CALL(x) do { if((x)!=CUBLAS_STATUS_SUCCESS) { \
-    printf("Error at %s:%d\n",__FILE__,__LINE__);\
-    return EXIT_FAILURE;}} while(0)
-
 void matTofile(int m, int n, curandGenerator_t rng);
 
 struct Abs: public thrust::unary_function<double, double>
@@ -96,7 +86,6 @@ int main()
 }
 
 void matTofile(int m, int n, curandGenerator_t rng){
-    std::ofstream ofile("rands_out.txt");
     thrust::device_vector<double> A(m * n);
     thrust::device_vector<double> C(m * n);
     thrust::device_vector<double> sum1(1 * n);
@@ -128,7 +117,5 @@ void matTofile(int m, int n, curandGenerator_t rng){
                 C.begin(),
                 thrust::divides<double>());
     }
-
-    // thrust::copy(C.begin(), C.end(), std::ostream_iterator<double>(ofile, ","));
-
 }
+
