@@ -72,9 +72,7 @@ print(end_cuda_func-start_cuda_func)
 
 #generate random seeds
 start_cuda_uniform = time.time()
-gen = pycuda.curandom.XORWOWRandomNumberGenerator()
-array = pycuda.gpuarray.GPUArray((3111696,), dtype=np.float32)
-gen.fill_uniform(array)
-gdata_sumrows = pycuda.gpuarray.sum(array)
+array = pycuda.curandom.seed_getter_unique(3111696)
 end_cuda_uniform = time.time()
 print(end_cuda_uniform-start_cuda_uniform)
+print(array)
